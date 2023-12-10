@@ -16,7 +16,8 @@
     "check": "tsc --noEmit && npx prettier . --check",
     "format": "npx prettier . --write",
     "test": "tsx ./quartz/util/path.test.ts",
-    "profile": "0x -D prof ./quartz/bootstrap-cli.mjs build --concurrency=1"
+    "profile": "0x -D prof ./quartz/bootstrap-cli.mjs build --concurrency=1",
+    "publish": "npx quartz build -d ../blog/content -o ../blog/website/pages"
   },
   "engines": {
     "npm": ">=9.3.1",
@@ -77,6 +78,7 @@
     "remark-parse": "^10.0.1",
     "remark-rehype": "^10.1.0",
     "remark-smartypants": "^2.0.0",
+    "remark-gemoji": "^8.0.0",
     "rimraf": "^5.0.1",
     "serve-handler": "^6.1.5",
     "source-map-support": "^0.5.21",

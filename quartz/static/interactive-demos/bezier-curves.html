@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en-US" data-bs-theme="dark">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+
+        <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+
+        <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.154.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.154.0/examples/jsm/"
+            }
+        }
+        </script>
+    </head>
+
+    <body style="margin: 0; display: flex; background-color: rgb(22, 22, 24);">
+        <div style="width: 66%;">
+            <canvas id="scene" style="width: 100%; float: left;" width="1000px" height="800px">
+                Your browser does not support Canvas
+            </canvas>
+        </div>
+
+        <style>
+        .lil-gui {
+            --number-color: #8ecebe;
+            --background-color: rgb(22, 22, 24);
+            --title-background-color: rgb(22, 22, 24);
+        }
+        </style>
+        <div style="width: 34%;">
+            <div id="gui">
+            </div>
+        </div>
+        <script type="module">
+            import * as THREE from 'three';
+            import { GUI } from 'three/addons/libs/lil-gui.module.min.js'
+            import { TextGeometry } from 'three/addons/geometries/TextGeometry.js'
+            import { FontLoader } from 'three/addons/loaders/FontLoader.js'
+
+            const scene = new THREE.Scene();
+
+            const canvas = document.getElementById('scene')
+            const aspectRatio = canvas.width/canvas.height
+
+            const state = {
+                p1: {
+                    x: 0,
+                    y: 0
+                },
+                p2: {
+                    x: 2,
+                    y: 2
+                },
+                p3: {
+                    x: 5,
+                    y: 0
+                }
+            }
+
+            const WIDTH = 10
+            const HEIGHT = WIDTH/aspectRatio
+            const camera = new THREE.OrthographicCamera(-1, 6, 6, -1)
+
+            const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            renderer.setClearColor(new THREE.Color(), 0)
+            renderer.setPixelRatio(window.devicePixelRatio)
+
+            // Bezier curve
+            const bezierCurve = new THREE.QuadraticBezierCurve(
+                new THREE.Vector2(state.p1.x, state.p1.y),
+                new THREE.Vector2(state.p2.x, state.p2.y),
+                new THREE.Vector2(state.p3.x, state.p3.y)
+            )
+
+            const curvePoints = bezierCurve.getPoints(50)
+            const curveGeometry = new THREE.BufferGeometry().setFromPoints(curvePoints)
+            const curveObject = new THREE.Line(curveGeometry, new THREE.LineBasicMaterial({ color: '#8ecebe' }))
+            scene.add(curveObject)
+
+            // Control points
+            const controlPointsGeometry = new THREE.BufferGeometry()
+            controlPointsGeometry.setFromPoints([
+                new THREE.Vector3(state.p1.x, state.p1.y, 0),
+                new THREE.Vector3(state.p2.x, state.p2.y, 0),
+                new THREE.Vector3(state.p3.x, state.p3.y, 0)
+            ])
+            const controlPointsMaterial = new THREE.PointsMaterial({ size: 7 })
+            const controlPoints = new THREE.Points(controlPointsGeometry, controlPointsMaterial)
+            scene.add(controlPoints)
+
+            // Axes subdivision
+            const points = []
+            for(let i = 1; i <= 5; i++) {
+                points.push(new THREE.Vector3(i, 0, 0))
+                points.push(new THREE.Vector3(i, 0.1, 0))
+                points.push(new THREE.Vector3(0,   i, 0))
+                points.push(new THREE.Vector3(0.1, i, 0))
+            }
+
+            const linesGeometry = new THREE.BufferGeometry().setFromPoints(points)
+            const lines = new THREE.LineSegments(linesGeometry, new THREE.LineBasicMaterial())
+
+            scene.add(lines)
+
+            // Axes
+            const axesHelper = new THREE.AxesHelper(5)
+            const axesColor = new THREE.Color(0.5, 0.5, 0.5)
+            axesHelper.setColors(axesColor, axesColor, axesColor)
+            scene.add(axesHelper)
+
+            function generateLabel(text, font) {
+                const scale = 0.04
+                const label = new TextGeometry(text, {
+                    font: font,
+                    size: 5,
+                    height: 1
+                })
+                label.center()
+
+                const mesh = new THREE.Mesh(label)
+                mesh.position.z = 0
+                mesh.scale.x = scale
+                mesh.scale.y = scale
+                mesh.scale.z = scale
+
+                scene.add(mesh)
+
+                return mesh
+            }
+
+            const fontLoader = new FontLoader()
+            fontLoader.load('https://unpkg.com/three@0.154.0/examples/fonts/gentilis_regular.typeface.json', function(font) {
+                const xMesh = generateLabel('x', font)
+                xMesh.position.x = 5.2
+                xMesh.position.y = 0
+
+                const yMesh = generateLabel('y', font)
+                yMesh.position.x = 0
+                yMesh.position.y = 5.2
+
+                for(let i = 1; i <= 5; i++) {
+                    const xSubdivision = generateLabel(`${i}`, font)
+                    xSubdivision.position.x = i
+                    xSubdivision.position.y = -0.1
+                    xSubdivision.scale.x = 0.02
+                    xSubdivision.scale.y = 0.02
+                    xSubdivision.scale.z = 0.02
+
+                    const ySubdivision = generateLabel(`${i}`, font)
+                    ySubdivision.position.x = -0.1
+                    ySubdivision.position.y = i
+                    ySubdivision.scale.x = 0.02
+                    ySubdivision.scale.y = 0.02
+                    ySubdivision.scale.z = 0.02
+                }
+            })
+
+            camera.position.z = 5;
+
+            const gui = new GUI({ container: document.getElementById('gui') })
+
+            function addPointGui(folderName, point) {
+                const folder = gui.addFolder(folderName)
+                folder.add(point, 'x', 0, 5).onChange(_ => {
+                    regenerateCurve(state)
+                })
+                folder.add(point, 'y', 0, 5).onChange(_ => {
+                    regenerateCurve(state)
+                })
+            }
+
+            addPointGui('Starting Point', state.p1)
+            addPointGui('Control Point', state.p2)
+            addPointGui('Ending Point', state.p3)
+
+            function regenerateCurve(configuration) {
+                // Regenerate Curve
+                const bezierCurve = new THREE.QuadraticBezierCurve(
+                    new THREE.Vector2(configuration.p1.x, configuration.p1.y),
+                    new THREE.Vector2(configuration.p2.x, configuration.p2.y),
+                    new THREE.Vector2(configuration.p3.x, configuration.p3.y)
+                )
+
+                const curvePoints = bezierCurve.getPoints(50)
+                curveGeometry.setFromPoints(curvePoints)
+
+                // Regenerate Control Points
+                controlPointsGeometry.setFromPoints([
+                    new THREE.Vector3(state.p1.x, state.p1.y, 0),
+                    new THREE.Vector3(state.p2.x, state.p2.y, 0),
+                    new THREE.Vector3(state.p3.x, state.p3.y, 0)
+                ])
+            }
+
+            function animate() {
+                requestAnimationFrame( animate );
+
+                renderer.render( scene, camera );
+            }
+
+            animate();
+        </script>
+    </body>
+</html>

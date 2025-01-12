@@ -4,7 +4,6 @@ const currentTheme = localStorage.getItem("theme") ?? userPref
 */
 document.documentElement.setAttribute("saved-theme", "dark")
 
-/*
 const emitThemeChangeEvent = (theme: "light" | "dark") => {
   const event: CustomEventMap["themechange"] = new CustomEvent("themechange", {
     detail: { theme },
@@ -38,4 +37,3 @@ document.addEventListener("nav", () => {
   colorSchemeMediaQuery.addEventListener("change", themeChange)
   window.addCleanup(() => colorSchemeMediaQuery.removeEventListener("change", themeChange))
 })
-*/

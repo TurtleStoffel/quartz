@@ -16,7 +16,6 @@ const config: QuartzConfig = {
     baseUrl: "www.turtlestoffel.com",
     ignorePatterns: ["private", "templates", ".obsidian"],
     defaultDateType: "modified",
-    generateSocialImages: false,
     theme: {
       fontOrigin: "googleFonts",
       cdnCaching: true,

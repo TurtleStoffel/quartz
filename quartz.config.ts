@@ -14,7 +14,7 @@ const config: QuartzConfig = {
     analytics: null,
     locale: "en-US",
     baseUrl: "www.turtlestoffel.com",
-    ignorePatterns: ["private", "templates", ".obsidian"],
+    ignorePatterns: ["private", "templates", ".obsidian", "sources"],
     defaultDateType: "modified",
     theme: {
       fontOrigin: "googleFonts",

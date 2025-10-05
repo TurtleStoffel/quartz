@@ -5,17 +5,7 @@ import * as Component from "./quartz/components"
 export const sharedPageComponents: SharedLayout = {
   head: Component.Head(),
   header: [],
-  afterBody: [
-    Component.Comments({
-      provider: 'giscus',
-      options: {
-        repo: 'TurtleStoffel/website',
-        repoId: 'R_kgDOMvFUEQ',
-        category: 'Announcements',
-        categoryId: 'DIC_kwDOMvFUEc4CiU2r',
-      }
-    })
-  ],
+  afterBody: [],
   footer: Component.Footer({
     links: {
       GitHub: "https://github.com/TurtleStoffel",

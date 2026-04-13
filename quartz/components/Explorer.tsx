@@ -32,9 +32,12 @@ const defaultOptions: Options = {
   sortFn: (a, b) => {
     // Sort order: folders first, then files. Sort folders and files alphabeticall
     if ((!a.isFolder && !b.isFolder) || (a.isFolder && b.isFolder)) {
+      // Strip all non alpha-numeric characters from string to not consider emoji's in sorting order.
+      const strippedDisplayNameA = a.displayName.replace(/\W/g, '')
+      const strippedDisplayNameB = b.displayName.replace(/\W/g, '')
       // numeric: true: Whether numeric collation should be used, such that "1" < "2" < "10"
       // sensitivity: "base": Only strings that differ in base letters compare as unequal. Examples: a ≠ b, a = á, a = A
-      return a.displayName.localeCompare(b.displayName, undefined, {
+      return strippedDisplayNameA.localeCompare(strippedDisplayNameB, undefined, {
         numeric: true,
         sensitivity: "base",
       })
